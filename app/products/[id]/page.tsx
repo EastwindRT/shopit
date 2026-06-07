@@ -11,7 +11,7 @@ type Props = { params: Promise<{ id: string }> }
 
 export const revalidate = 300
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://shopit.onrender.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://scoppa.shop'
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const seller = product.seller?.name
   const summary =
     product.description?.plain?.slice(0, 155) ??
-    `${product.title}${seller ? ` from ${seller}` : ''} — on SHOPIT, the front page of Shopify.`
+    `${product.title}${seller ? ` from ${seller}` : ''} — on Scoppa, the front page of Shopify.`
   const priceLabel = price ? ` · $${(price.amount / 100).toFixed(2)}` : ''
 
   return {
@@ -104,7 +104,7 @@ export default async function ProductPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'SHOPIT', item: SITE_URL },
+      { '@type': 'ListItem', position: 1, name: 'Scoppa', item: SITE_URL },
       {
         '@type': 'ListItem',
         position: 2,

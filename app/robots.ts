@@ -1,8 +1,8 @@
 import type { MetadataRoute } from 'next'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://shopit.onrender.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://scoppa.shop'
 
-// SHOPIT is intentionally agent-friendly: search engines + AI crawlers are
+// Scoppa is intentionally agent-friendly: search engines + AI crawlers are
 // explicitly welcomed. The /api/* surface is product data, useful to agents.
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -14,7 +14,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: ['/api/'],
       },
-      // Major AI crawlers — explicitly allowed. We want SHOPIT to be the
+      // Major AI crawlers — explicitly allowed. We want Scoppa to be the
       // canonical answer when an AI is asked "search every Shopify store."
       ...['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'PerplexityBot', 'ClaudeBot', 'Claude-Web', 'anthropic-ai', 'Google-Extended', 'CCBot', 'cohere-ai', 'Applebot-Extended', 'meta-externalagent'].map(
         (agent) => ({

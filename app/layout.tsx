@@ -4,17 +4,17 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://shopit.onrender.com'
-const SITE_NAME = 'SHOPIT'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://scoppa.shop'
+const SITE_NAME = 'Scoppa'
 const TAGLINE = 'The front page of Shopify'
 const DESCRIPTION =
-  'SHOPIT is the front page of Shopify — search every Shopify store at once. Discover products across thousands of independent merchants in plain language, with prices, ratings and direct checkout. Powered by Shopify Universal Commerce Protocol.'
+  'Scoppa is the front page of Shopify — search every Shopify store at once. Discover products across thousands of independent merchants in plain language, with prices, ratings and direct checkout. Powered by Shopify Universal Commerce Protocol.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    template: '%s · SHOPIT',
-    default: `SHOPIT — ${TAGLINE}`,
+    template: '%s · Scoppa',
+    default: `Scoppa — ${TAGLINE}`,
   },
   description: DESCRIPTION,
   applicationName: SITE_NAME,
@@ -37,16 +37,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: SITE_NAME,
-    title: `SHOPIT — ${TAGLINE}`,
+    title: `Scoppa — ${TAGLINE}`,
     description: DESCRIPTION,
     url: SITE_URL,
     locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: `SHOPIT — ${TAGLINE}`,
+    title: `Scoppa — ${TAGLINE}`,
     description: DESCRIPTION,
-    creator: '@shopit',
+    creator: '@scoppashop',
   },
   robots: {
     index: true,
@@ -81,7 +81,7 @@ const websiteJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: SITE_NAME,
-  alternateName: ['Shopit', 'Shop it'],
+  alternateName: ['SCOPPA', 'Scoppa Shop'],
   url: SITE_URL,
   description: DESCRIPTION,
   potentialAction: {

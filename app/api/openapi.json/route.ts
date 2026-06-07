@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-// Discoverable OpenAPI 3.1 spec for SHOPIT's public API. Lets LLM agents and
+// Discoverable OpenAPI 3.1 spec for Scoppa's public API. Lets LLM agents and
 // integrators auto-generate clients and understand the contract.
 //
 // Conventions followed (so MCP clients and LLM tool-callers find it):
@@ -9,17 +9,17 @@ import { NextResponse } from 'next/server'
 
 export const runtime = 'edge'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://shopit.onrender.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://scoppa.shop'
 
 export async function GET() {
   const spec = {
     openapi: '3.1.0',
     info: {
-      title: 'SHOPIT API',
+      title: 'Scoppa API',
       version: '1.0.0',
       description:
         'Universal search across every Shopify merchant. Backed by Shopify Universal Commerce Protocol.',
-      contact: { name: 'SHOPIT', url: SITE_URL },
+      contact: { name: 'Scoppa', url: SITE_URL },
       license: { name: 'MIT' },
     },
     servers: [{ url: SITE_URL, description: 'Production' }],

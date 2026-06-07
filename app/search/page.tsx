@@ -9,7 +9,7 @@ import type { UcpProduct } from '@/lib/ucp/types'
 
 export const runtime = 'edge'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://shopit.onrender.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://scoppa.shop'
 
 type Props = {
   searchParams: Promise<{
@@ -26,7 +26,7 @@ export async function generateMetadata({ searchParams }: Props) {
     return {
       title: 'Search every Shopify store',
       description:
-        'SHOPIT searches the entire Shopify catalog at once — find products across thousands of independent merchants.',
+        'Scoppa searches the entire Shopify catalog at once — find products across thousands of independent merchants.',
       alternates: { canonical: '/search' },
     }
   }
@@ -127,7 +127,7 @@ async function SearchResults({
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: `Search results for "${query}" on SHOPIT`,
+    name: `Search results for "${query}" on Scoppa`,
     numberOfItems: sorted.length,
     itemListOrder:
       sort === 'price-asc'

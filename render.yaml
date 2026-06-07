@@ -13,6 +13,9 @@
 
 services:
   - type: web
+    # Render's internal service name. Keep as-is — Render syncs blueprints by
+    # this name; renaming would provision a new service instead of updating the
+    # existing one. The public-facing brand is "Scoppa" via the custom domain.
     name: shopit
     runtime: node
     # Free tier: spins down after 15 min idle. Upgrade to 'starter' ($7/mo) for
@@ -32,9 +35,9 @@ services:
       - key: NODE_VERSION
         value: 20.18.0
       # Public site URL — used for canonical URLs, sitemap, OG, JSON-LD.
-      # Set to your Render subdomain (https://shopit.onrender.com) or custom domain.
+      # Set to your Render subdomain (https://scoppa.shop) or custom domain.
       - key: NEXT_PUBLIC_SITE_URL
-        value: https://shopit.onrender.com
+        value: https://scoppa.shop
       # UCP overrides — both optional; defaults baked into the client are fine.
       - key: UCP_ENDPOINT
         value: https://catalog.shopify.com/api/ucp/mcp

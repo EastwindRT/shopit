@@ -1,6 +1,6 @@
 // Pluggable affiliate-link rewriter.
 //
-// SHOPIT sends users to thousands of independent Shopify merchants' checkout
+// Scoppa sends users to thousands of independent Shopify merchants' checkout
 // URLs. Per-merchant affiliate signups don't scale. The right pattern for an
 // aggregator is a universal affiliate network (Skimlinks, Sovrn) that has
 // pre-negotiated commissions with most Shopify merchants and rewrites outbound
@@ -45,7 +45,7 @@ export function affiliateUrl(rawUrl: string | null | undefined): string {
 function skimlinksRewrite(url: string): string {
   if (!SKIMLINKS_SITE_ID) return url
   const encoded = encodeURIComponent(url)
-  return `https://go.skimresources.com/?id=${SKIMLINKS_SITE_ID}&xs=1&url=${encoded}&sref=shopit`
+  return `https://go.skimresources.com/?id=${SKIMLINKS_SITE_ID}&xs=1&url=${encoded}&sref=scoppa`
 }
 
 /** True when affiliate tracking is live — useful for disclosure UI. */

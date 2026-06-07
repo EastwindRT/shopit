@@ -1,31 +1,31 @@
 # Latest Update
 
-**Status:** Phase 7 shipped (rebrand to SHOPIT + agent-friendly schema + SEO). Phase 6 (perf + UX) and prior phases below.
+**Status:** Phase 7 shipped (rebrand to Scoppa + agent-friendly schema + SEO). Phase 6 (perf + UX) and prior phases below.
 
-## Phase 7 — SHOPIT rebrand + SEO + agent surface
+## Phase 7 — Scoppa rebrand + SEO + agent surface
 
 ### Brand
-- Site is now **SHOPIT — The front page of Shopify**. Renamed throughout:
+- Site is now **Scoppa — The front page of Shopify**. Renamed throughout:
   - `package.json` name: `shopit`
-  - Navbar wordmark: `SHOPIT` (bold)
-  - HeroSection: small uppercase tracker "THE FRONT PAGE OF SHOPIFY" + `SHOPIT` h1 + sub-headline
-  - Default title: `SHOPIT — The front page of Shopify`
-  - Title template: `%s · SHOPIT`
+  - Navbar wordmark: `Scoppa` (bold)
+  - HeroSection: small uppercase tracker "THE FRONT PAGE OF SHOPIFY" + `Scoppa` h1 + sub-headline
+  - Default title: `Scoppa — The front page of Shopify`
+  - Title template: `%s · Scoppa`
 
 ### SEO foundation
 - Full Metadata API in `app/layout.tsx`: `metadataBase`, `keywords`, `applicationName`, `alternates.canonical`, full `openGraph` + `twitter` cards, expansive `robots.googleBot` directives.
-- Per-page metadata: home keeps brand front; `/search` allows indexing of results pages (long-tail discovery); PDP includes price in title (`Name · $X.XX · SHOPIT`), product summary as description, OG `article` type with image.
+- Per-page metadata: home keeps brand front; `/search` allows indexing of results pages (long-tail discovery); PDP includes price in title (`Name · $X.XX · Scoppa`), product summary as description, OG `article` type with image.
 - `viewport` export with `themeColor` for light/dark.
 - Search page `/search?q=...` is now indexable (was `robots: { index: false }`) — these are the long-tail SEO pages.
 
 ### JSON-LD structured data
 - **Global (layout):** `WebSite` with `potentialAction: SearchAction` (gets Google's sitelinks search box) + `Organization`.
 - **PDP (per product):** `Product` with `name`, `description`, `image[]`, `brand`, `aggregateRating` (when `rating.count > 0`), `offers` (single `Offer` when `min == max`, `AggregateOffer` with low/high otherwise), `seller`, `availability: InStock`, canonical URL.
-- **PDP:** `BreadcrumbList` (SHOPIT → product name).
+- **PDP:** `BreadcrumbList` (Scoppa → product name).
 - Verified live: offers `{price: "30.00", priceCurrency: "USD"}`, `AggregateRating {4.9, 1592}`.
 
 ### Agent discovery
-- `public/llms.txt` — emerging standard ([llmstxt.org](https://llmstxt.org)). Describes SHOPIT to LLM agents: what it is, how to use it programmatically (`/api/ucp/search?q=...`), URL parameter conventions (`country`, `category`, `sort`), supported countries/categories, query language ("under $X" → price filter).
+- `public/llms.txt` — emerging standard ([llmstxt.org](https://llmstxt.org)). Describes Scoppa to LLM agents: what it is, how to use it programmatically (`/api/ucp/search?q=...`), URL parameter conventions (`country`, `category`, `sort`), supported countries/categories, query language ("under $X" → price filter).
 - `app/robots.ts` — explicitly **welcomes** AI bots (GPTBot, ChatGPT-User, OAI-SearchBot, PerplexityBot, ClaudeBot, Claude-Web, anthropic-ai, Google-Extended, CCBot, cohere-ai, Applebot-Extended, meta-externalagent). `/api/` disallowed by default rule (consumed only via UI/agent direct path).
 - `app/sitemap.ts` — home + `/search` + 10 seed queries (the catalog is too large/churny to enumerate; the rest is discoverable via search).
 

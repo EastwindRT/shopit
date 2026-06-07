@@ -1,8 +1,8 @@
 import type { MetadataRoute } from 'next'
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://shopit.onrender.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://scoppa.shop'
 
-// SHOPIT is a search interface over a universe of products that's too large
+// Scoppa is a search interface over a universe of products that's too large
 // (and too churny) to enumerate in a static sitemap. We sitemap the canonical
 // entry points + the most useful pre-seeded queries; everything else is
 // discoverable via the site search.

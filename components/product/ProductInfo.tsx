@@ -108,7 +108,7 @@ export function ProductInfo({ product }: Props) {
         Secure checkout on the merchant&rsquo;s Shopify store
         {showAffiliateDisclosure && (
           <span className="block mt-1 text-[10px]">
-            SHOPIT may earn a commission on this purchase.
+            Scoppa may earn a commission on this purchase.
           </span>
         )}
       </p>
