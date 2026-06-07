@@ -43,6 +43,14 @@ services:
       # Force production mode (Render sets this, but explicit for clarity).
       - key: NODE_ENV
         value: production
+      # Affiliate monetization — off by default. When you have a Skimlinks
+      # site_id, flip provider to 'skimlinks' and set the id below.
+      # (NEXT_PUBLIC_ because the ID is rendered into outbound URLs in the
+      # client bundle. It's not a secret — appears in every affiliate URL.)
+      - key: NEXT_PUBLIC_AFFILIATE_PROVIDER
+        value: none
+      - key: NEXT_PUBLIC_SKIMLINKS_SITE_ID
+        value: ''
     # Response headers (Cache-Control, Content-Type) are configured in
     # next.config.ts under `headers()` — Render's `headers:` block is only for
     # static-site services.

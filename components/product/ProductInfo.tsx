@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { formatMoney, formatMoneyRange, cn } from '@/lib/utils'
+import { affiliateUrl, affiliateActive } from '@/lib/affiliate'
 import type { UcpProduct, UcpVariant } from '@/lib/ucp/types'
 
 type Props = { product: UcpProduct }
@@ -27,8 +28,11 @@ export function ProductInfo({ product }: Props) {
   const variantPrice = matchedVariant?.price
   const rangeLabel = formatMoneyRange(product.price_range)
   const priceLabel = variantPrice ? formatMoney(variantPrice) : rangeLabel
-  const checkoutUrl =
+  const rawCheckoutUrl =
     matchedVariant?.checkout_url ?? variants.find((v) => v.checkout_url)?.checkout_url ?? product.url
+  // Pass through affiliate rewriter (no-op until AFFILIATE_PROVIDER is set).
+  const checkoutUrl = affiliateUrl(rawCheckoutUrl)
+  const showAffiliateDisclosure = affiliateActive()
   const sellerName = product.seller?.name
 
   return (
@@ -102,6 +106,11 @@ export function ProductInfo({ product }: Props) {
 
       <p className="mt-3 text-xs text-ink-tertiary text-center">
         Secure checkout on the merchant&rsquo;s Shopify store
+        {showAffiliateDisclosure && (
+          <span className="block mt-1 text-[10px]">
+            SHOPIT may earn a commission on this purchase.
+          </span>
+        )}
       </p>
 
       {product.description?.plain && (

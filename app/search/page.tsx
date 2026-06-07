@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { searchCatalogSmart } from '@/lib/ucp/client'
+import { searchCatalogSmart, productIdToSlug } from '@/lib/ucp/client'
 import { ProductGrid } from '@/components/product/ProductGrid'
 import { ProductCardSkeleton } from '@/components/product/ProductCardSkeleton'
 import { AiSearchBar } from '@/components/search/AiSearchBar'
@@ -8,6 +8,8 @@ import { COUNTRY_TO_CURRENCY } from '@/lib/search/facets'
 import type { UcpProduct } from '@/lib/ucp/types'
 
 export const runtime = 'edge'
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://shopit.onrender.com'
 
 type Props = {
   searchParams: Promise<{
@@ -120,8 +122,33 @@ async function SearchResults({
 
   const sorted = applySort(products, sort)
 
+  // JSON-LD ItemList — surfaces /search?q=… as a recognized list of products
+  // to Google + AI agents. Eligible for list-style rich results.
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `Search results for "${query}" on SHOPIT`,
+    numberOfItems: sorted.length,
+    itemListOrder:
+      sort === 'price-asc'
+        ? 'https://schema.org/ItemListOrderAscending'
+        : sort === 'price-desc'
+          ? 'https://schema.org/ItemListOrderDescending'
+          : 'https://schema.org/ItemListOrderAscending',
+    itemListElement: sorted.slice(0, 20).map((product, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE_URL}/products/${productIdToSlug(product.id)}`,
+      name: product.title,
+    })),
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
       {/* Resolved status — replaces the pre-fetch placeholder. */}
       <p className="text-xs text-ink-tertiary mb-4 tabular-nums">
         {sorted.length.toLocaleString()} results for &ldquo;
