@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { formatMoney, formatMoneyRange, cn } from '@/lib/utils'
-import { affiliateUrl, affiliateActive } from '@/lib/affiliate'
+import { affiliateActive } from '@/lib/affiliate'
 import type { UcpProduct, UcpVariant } from '@/lib/ucp/types'
 
 type Props = { product: UcpProduct }
@@ -28,10 +28,10 @@ export function ProductInfo({ product }: Props) {
   const variantPrice = matchedVariant?.price
   const rangeLabel = formatMoneyRange(product.price_range)
   const priceLabel = variantPrice ? formatMoney(variantPrice) : rangeLabel
-  const rawCheckoutUrl =
+  // Skimlinks JS (loaded in layout) rewrites outbound checkout URLs at click
+  // time. We just need the original URL here.
+  const checkoutUrl =
     matchedVariant?.checkout_url ?? variants.find((v) => v.checkout_url)?.checkout_url ?? product.url
-  // Pass through affiliate rewriter (no-op until AFFILIATE_PROVIDER is set).
-  const checkoutUrl = affiliateUrl(rawCheckoutUrl)
   const showAffiliateDisclosure = affiliateActive()
   const sellerName = product.seller?.name
 
