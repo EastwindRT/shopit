@@ -1,0 +1,50 @@
+# Render Infrastructure as Code — single Next.js web service.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# To deploy:
+#   1. Push this repo to GitHub.
+#   2. In the Render dashboard, click "New" → "Blueprint" → select the repo.
+#   3. Render reads this file, provisions the service, builds, and deploys.
+#
+# Caveat: Next.js Edge runtime routes (`runtime: 'edge'`) work on Render but
+# are served by a single Node process, not globally distributed.
+# That's fine for now — Render still gives us SWR caching + fast warm responses.
+# For real edge distribution, point this same repo at Vercel or Cloudflare.
+
+services:
+  - type: web
+    name: shopit
+    runtime: node
+    plan: starter
+    region: oregon
+    branch: main
+    autoDeploy: true
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /
+    envVars:
+      # Node 20+ required for Next.js 15 + React 19.
+      - key: NODE_VERSION
+        value: 20.18.0
+      # Public site URL — used for canonical URLs, sitemap, OG, JSON-LD.
+      # Set to your Render subdomain (https://shopit.onrender.com) or custom domain.
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://shopit.onrender.com
+      # UCP overrides — both optional; defaults baked into the client are fine.
+      - key: UCP_ENDPOINT
+        value: https://catalog.shopify.com/api/ucp/mcp
+      - key: UCP_AGENT_PROFILE
+        value: https://shopify.dev/ucp/agent-profiles/2026-04-08/valid-with-capabilities.json
+      # Force production mode (Render sets this, but explicit for clarity).
+      - key: NODE_ENV
+        value: production
+    headers:
+      - path: /_next/static/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /llms.txt
+        name: Content-Type
+        value: text/plain; charset=utf-8
+      - path: /llms.txt
+        name: Cache-Control
+        value: public, max-age=3600

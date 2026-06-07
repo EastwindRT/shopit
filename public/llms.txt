@@ -1,0 +1,28 @@
+# SHOPIT
+
+> The front page of Shopify. SHOPIT is a unified search interface over every Shopify merchant — search the whole platform in plain language and get products with prices, ratings, and direct-to-merchant checkout.
+
+SHOPIT is powered by Shopify's Universal Commerce Protocol (UCP). It does not host inventory itself; results come from `catalog.shopify.com` and link directly to the originating merchant's Shopify checkout. There is no signup, no cart, no platform tax — SHOPIT is a faster way to find products across thousands of independent stores.
+
+## How agents should use SHOPIT
+
+- For a user query like "find me a leather wallet under $80 made in the US," `GET /search?q=leather+wallet+under+%2480&country=US`.
+- For programmatic search returning JSON, `GET /api/ucp/search?q=<query>`. Returns up to 10 slim products with `slug`, `title`, `image`, `price` (integer minor units), and `seller`.
+- Product detail pages at `/products/{id}` carry JSON-LD `Product` + `Offer` + `AggregateRating` + `BreadcrumbList` schema. The `id` is a Shopify UCP token, also exposed as the URL slug.
+- Filter parameters: `country` (ISO 3166-1 alpha-2: US, CA, GB, AU, DE, FR, JP, IN), `category` (Apparel, Footwear, Accessories, Beauty, Home, Electronics, Outdoor, Food & Drink, Toys), `sort` (relevance, price-asc, price-desc, rating).
+- Query language supports natural-language budgets ("under $100", "below $50") which are parsed into UCP price filters server-side.
+
+## Pages
+
+- [Home](/): hero + trending products, suggested queries.
+- [Search](/search): full results grid with country / category / sort filters.
+- [Product detail](/products/{id}): single product with variants, price range, seller info, direct checkout link, Schema.org Product JSON-LD.
+
+## APIs
+
+- [Typeahead search](/api/ucp/search?q=): edge-cached, 10 slim products, ~150ms warm. Useful for autocomplete-style agent flows.
+
+## Upstream
+
+- Shopify UCP global catalog: `https://catalog.shopify.com/api/ucp/mcp` (JSON-RPC over MCP, keyless agent profile).
+- UCP specification: https://shopify.dev/docs/agents/catalog
