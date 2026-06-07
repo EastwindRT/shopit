@@ -15,7 +15,9 @@ services:
   - type: web
     name: shopit
     runtime: node
-    plan: starter
+    # Free tier: spins down after 15 min idle. Upgrade to 'starter' ($7/mo) for
+    # always-warm responses once traffic justifies it.
+    plan: free
     region: oregon
     branch: main
     autoDeploy: true
