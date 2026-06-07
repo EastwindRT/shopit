@@ -21,7 +21,10 @@ services:
     region: oregon
     branch: main
     autoDeploy: true
-    buildCommand: npm ci && npm run build
+    # `--include=dev` forces npm to install devDependencies even when
+    # NODE_ENV=production is set. Next.js's build needs tailwindcss / postcss
+    # / autoprefixer / typescript, which all live in devDependencies.
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run start
     healthCheckPath: /
     envVars:
