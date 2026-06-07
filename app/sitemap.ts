@@ -34,6 +34,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'daily',
       priority: 0.9,
     },
+    {
+      url: `${SITE_URL}/about`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
     ...SEED_QUERIES.map((query) => ({
       url: `${SITE_URL}/search?q=${encodeURIComponent(query)}`,
       lastModified: now,

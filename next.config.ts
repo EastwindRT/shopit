@@ -54,6 +54,40 @@ const nextConfig: NextConfig = {
           { key: 'Cache-Control', value: 'public, max-age=3600' },
         ],
       },
+      {
+        // Search results: cache at the CDN edge for 5 minutes, serve stale
+        // for an hour while revalidating. First user pays the UCP fan-out
+        // cost; the next ~hundred get it from Cloudflare in milliseconds.
+        source: '/search',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=300, stale-while-revalidate=3600',
+          },
+        ],
+      },
+      {
+        // Product detail pages: cache longer at the edge — product data
+        // changes slowly. ISR via the page's own `revalidate` still triggers
+        // background refreshes.
+        source: '/products/:id*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        // Typeahead API — short edge cache; the same query repeats often.
+        source: '/api/ucp/search',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=120, stale-while-revalidate=600',
+          },
+        ],
+      },
     ]
   },
 }

@@ -113,6 +113,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <head>
+        {/* Preconnect to origins we hit on every page. Warming the DNS + TLS
+            handshake here saves ~100–200ms on the first image / first UCP
+            call after the page paints. */}
+        <link rel="preconnect" href="https://cdn.shopify.com" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://cdn.shopify.com" />
+        <link rel="preconnect" href="https://catalog.shopify.com" />
+        <link rel="dns-prefetch" href="https://s.skimresources.com" />
         {/* JSON-LD: identifies the site to Google + AI agents.
             WebSite + SearchAction gives us the sitelinks search box in SERP. */}
         <script
