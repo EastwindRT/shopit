@@ -40,13 +40,6 @@ services:
       # Force production mode (Render sets this, but explicit for clarity).
       - key: NODE_ENV
         value: production
-    headers:
-      - path: /_next/static/*
-        name: Cache-Control
-        value: public, max-age=31536000, immutable
-      - path: /llms.txt
-        name: Content-Type
-        value: text/plain; charset=utf-8
-      - path: /llms.txt
-        name: Cache-Control
-        value: public, max-age=3600
+    # Response headers (Cache-Control, Content-Type) are configured in
+    # next.config.ts under `headers()` — Render's `headers:` block is only for
+    # static-site services.
