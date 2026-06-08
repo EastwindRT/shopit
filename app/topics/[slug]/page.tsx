@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import { searchCatalogSmart, productIdToSlug } from '@/lib/ucp/client'
 import { ProductGrid } from '@/components/product/ProductGrid'
 import { ProductCardSkeleton } from '@/components/product/ProductCardSkeleton'
+import { Pagination } from '@/components/search/Pagination'
 import { TOPICS, topicBySlug } from '@/lib/topics'
 import type { UcpProduct } from '@/lib/ucp/types'
 
@@ -13,33 +14,43 @@ import type { UcpProduct } from '@/lib/ucp/types'
 export const revalidate = 300
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://scoppa.shop'
+const PAGE_SIZE = 20
 
-type Props = { params: Promise<{ slug: string }> }
+type Props = {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ page?: string }>
+}
 
 // Pre-render every topic at build time → static, instant first paint.
 export function generateStaticParams() {
   return TOPICS.map((t) => ({ slug: t.slug }))
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { slug } = await params
+  const { page: pageRaw } = await searchParams
+  const page = Math.max(1, parseInt(pageRaw ?? '1', 10))
   const topic = topicBySlug(slug)
   if (!topic) return {}
+  const pageSuffix = page > 1 ? ` (page ${page})` : ''
+  const canonical = page > 1 ? `/topics/${slug}?page=${page}` : `/topics/${slug}`
   return {
-    title: `${topic.title} — ${TOPICS.length}+ picks from Shopify merchants`,
+    title: `${topic.title}${pageSuffix} — picks from Shopify merchants`,
     description: topic.intro,
-    alternates: { canonical: `/topics/${slug}` },
+    alternates: { canonical },
     openGraph: {
       type: 'article',
       title: topic.heading,
       description: topic.intro,
-      url: `${SITE_URL}/topics/${slug}`,
+      url: `${SITE_URL}${canonical}`,
     },
   }
 }
 
-export default async function TopicPage({ params }: Props) {
+export default async function TopicPage({ params, searchParams }: Props) {
   const { slug } = await params
+  const { page: pageRaw } = await searchParams
+  const page = Math.max(1, parseInt(pageRaw ?? '1', 10))
   const topic = topicBySlug(slug)
   if (!topic) notFound()
 
@@ -118,7 +129,7 @@ export default async function TopicPage({ params }: Props) {
           </div>
         }
       >
-        <TopicProducts topic={topic} />
+        <TopicProducts topic={topic} slug={slug} page={page} />
       </Suspense>
 
       {/* Internal linking — related topics */}
@@ -168,7 +179,15 @@ export default async function TopicPage({ params }: Props) {
   )
 }
 
-async function TopicProducts({ topic }: { topic: { query: string; category?: string } }) {
+async function TopicProducts({
+  topic,
+  slug,
+  page,
+}: {
+  topic: { query: string; category?: string }
+  slug: string
+  page: number
+}) {
   const products = await searchCatalogSmart(topic.query, {
     category: topic.category,
     limit: 120,
@@ -179,13 +198,18 @@ async function TopicProducts({ topic }: { topic: { query: string; category?: str
     return <p className="text-sm text-ink-tertiary">No products available right now.</p>
   }
 
+  const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const start = (currentPage - 1) * PAGE_SIZE
+  const pageResults = products.slice(start, start + PAGE_SIZE)
+
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     numberOfItems: products.length,
-    itemListElement: products.slice(0, 20).map((p, i) => ({
+    itemListElement: pageResults.map((p, i) => ({
       '@type': 'ListItem',
-      position: i + 1,
+      position: start + i + 1,
       url: `${SITE_URL}/products/${productIdToSlug(p.id)}`,
       name: p.title,
     })),
@@ -199,8 +223,16 @@ async function TopicProducts({ topic }: { topic: { query: string; category?: str
       />
       <p className="text-xs text-ink-tertiary mb-4 tabular-nums">
         {products.length.toLocaleString()} matches across Shopify
+        {totalPages > 1 && (
+          <span> · showing {start + 1}–{start + pageResults.length}</span>
+        )}
       </p>
-      <ProductGrid products={products} />
+      <ProductGrid products={pageResults} />
+      <Pagination
+        basePath={`/topics/${slug}`}
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </>
   )
 }

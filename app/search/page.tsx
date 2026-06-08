@@ -4,12 +4,14 @@ import { ProductGrid } from '@/components/product/ProductGrid'
 import { ProductCardSkeleton } from '@/components/product/ProductCardSkeleton'
 import { AiSearchBar } from '@/components/search/AiSearchBar'
 import { SearchFilters, type SortKey } from '@/components/search/SearchFilters'
+import { Pagination } from '@/components/search/Pagination'
 import { COUNTRY_TO_CURRENCY } from '@/lib/search/facets'
 import type { UcpProduct } from '@/lib/ucp/types'
 
 export const runtime = 'edge'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://scoppa.shop'
+const PAGE_SIZE = 20
 
 type Props = {
   searchParams: Promise<{
@@ -17,11 +19,13 @@ type Props = {
     country?: string
     category?: string
     sort?: SortKey
+    page?: string
   }>
 }
 
 export async function generateMetadata({ searchParams }: Props) {
-  const { q } = await searchParams
+  const { q, page } = await searchParams
+  const pageNum = Math.max(1, parseInt(page ?? '1', 10))
   if (!q) {
     return {
       title: 'Search every Shopify store',
@@ -30,18 +34,22 @@ export async function generateMetadata({ searchParams }: Props) {
       alternates: { canonical: '/search' },
     }
   }
+  const pageSuffix = pageNum > 1 ? ` (page ${pageNum})` : ''
+  const canonical = pageNum > 1
+    ? `/search?q=${encodeURIComponent(q)}&page=${pageNum}`
+    : `/search?q=${encodeURIComponent(q)}`
   return {
-    title: `${q} — search results`,
+    title: `${q}${pageSuffix} — search results`,
     description: `Products matching "${q}" across every Shopify store, ranked by relevance. Filter by country, category, sort by price or rating.`,
-    alternates: { canonical: `/search?q=${encodeURIComponent(q)}` },
-    // Allow indexing of search results — useful for long-tail discovery.
+    alternates: { canonical },
     robots: { index: true, follow: true },
   }
 }
 
 export default async function SearchPage({ searchParams }: Props) {
-  const { q, country = '', category = '', sort = 'relevance' } = await searchParams
-  const key = `${q ?? ''}|${country}|${category}|${sort}`
+  const { q, country = '', category = '', sort = 'relevance', page: pageRaw } = await searchParams
+  const page = Math.max(1, parseInt(pageRaw ?? '1', 10))
+  const key = `${q ?? ''}|${country}|${category}|${sort}|${page}`
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -74,7 +82,13 @@ export default async function SearchPage({ searchParams }: Props) {
               </>
             }
           >
-            <SearchResults query={q} country={country} category={category} sort={sort} />
+            <SearchResults
+              query={q}
+              country={country}
+              category={category}
+              sort={sort}
+              page={page}
+            />
           </Suspense>
         </>
       ) : (
@@ -91,11 +105,13 @@ async function SearchResults({
   country,
   category,
   sort,
+  page,
 }: {
   query: string
   country: string
   category: string
   sort: SortKey
+  page: number
 }) {
   const products = await searchCatalogSmart(query, {
     category,
@@ -121,13 +137,17 @@ async function SearchResults({
   }
 
   const sorted = applySort(products, sort)
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
+  const currentPage = Math.min(page, totalPages)
+  const start = (currentPage - 1) * PAGE_SIZE
+  const pageResults = sorted.slice(start, start + PAGE_SIZE)
 
-  // JSON-LD ItemList — surfaces /search?q=… as a recognized list of products
-  // to Google + AI agents. Eligible for list-style rich results.
+  // JSON-LD ItemList — describes ONLY this page's slice but reports the total.
+  // Each paginated URL is independently indexable for long-tail SEO.
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: `Search results for "${query}" on Scoppa`,
+    name: `Search results for "${query}" on Scoppa${currentPage > 1 ? ` (page ${currentPage})` : ''}`,
     numberOfItems: sorted.length,
     itemListOrder:
       sort === 'price-asc'
@@ -135,9 +155,9 @@ async function SearchResults({
         : sort === 'price-desc'
           ? 'https://schema.org/ItemListOrderDescending'
           : 'https://schema.org/ItemListOrderAscending',
-    itemListElement: sorted.slice(0, 20).map((product, i) => ({
+    itemListElement: pageResults.map((product, i) => ({
       '@type': 'ListItem',
-      position: i + 1,
+      position: start + i + 1,
       url: `${SITE_URL}/products/${productIdToSlug(product.id)}`,
       name: product.title,
     })),
@@ -149,12 +169,23 @@ async function SearchResults({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
       />
-      {/* Resolved status — replaces the pre-fetch placeholder. */}
       <p className="text-xs text-ink-tertiary mb-4 tabular-nums">
         {sorted.length.toLocaleString()} results for &ldquo;
         <span className="text-ink">{query}</span>&rdquo;
+        {totalPages > 1 && (
+          <span className="text-ink-tertiary">
+            {' · showing '}
+            {start + 1}–{start + pageResults.length} of {sorted.length}
+          </span>
+        )}
       </p>
-      <ProductGrid products={sorted} />
+      <ProductGrid products={pageResults} />
+      <Pagination
+        basePath="/search"
+        params={{ q: query, country, category, sort: sort === 'relevance' ? undefined : sort }}
+        currentPage={currentPage}
+        totalPages={totalPages}
+      />
     </>
   )
 }
