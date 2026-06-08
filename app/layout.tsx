@@ -4,6 +4,7 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
+import { Footer } from '@/components/layout/Footer'
 import { skimlinksScriptUrl } from '@/lib/affiliate'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://scoppa.shop'
@@ -159,6 +160,7 @@ export default function RootLayout({
         <main id="main" className="min-h-[calc(100vh-64px)]">
           {children}
         </main>
+        <Footer />
         {/* Skimlinks: auto-rewrites outbound merchant links at click time.
             Only loaded when NEXT_PUBLIC_AFFILIATE_PROVIDER=skimlinks +
             NEXT_PUBLIC_SKIMLINKS_ID are set. */}

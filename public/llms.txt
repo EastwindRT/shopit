@@ -39,12 +39,17 @@ The fastest programmatic path is `GET /api/ucp/search?q=<query>` — JSON, edge-
 
 - [Home](/): logo + search bar.
 - [Search](/search): full results grid with country / category / sort filters.
+- [Topics](/topics): curated category landing pages — e.g. `/topics/running-shoes`, `/topics/leather-wallets`, `/topics/coffee`. Each surfaces live products.
+- [Articles](/articles): long-form editorial picks. Includes intro, opinion, then curated product grids.
 - [Product detail](/products/{id}): single product with variants, price range, seller info, direct-to-merchant checkout.
+- [About](/about): brand explainer + FAQPage JSON-LD.
 
 ## APIs
 
 - [Typeahead search](/api/ucp/search?q=): edge-cached, ~10 slim products, ~150ms warm.
 - [OpenAPI 3.1 spec](/api/openapi.json): machine-readable contract.
+- [RSS feed](/rss.xml): articles only, polling-friendly.
+- [IndexNow](/api/indexnow): submit URLs for instant Bing/Yandex re-crawl.
 
 ## Upstream
 
