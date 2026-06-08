@@ -142,18 +142,18 @@ export function AiSearchBar({ initialQuery }: Props) {
 
   return (
     <div ref={containerRef} className="relative w-full">
-      {/* DOS-style terminal input. Black bg, amber text, monospace, sharp
-          corners, branded `scoppa>` prompt. CSS-only — zero perf cost. */}
+      {/* DOS-style terminal input. Black bg, phosphor-green text, monospace,
+          sharp corners, branded `scoppa>` prompt. CSS-only — zero perf cost. */}
       <div
         className={cn(
           'flex items-center gap-2 px-3 py-2.5 font-mono bg-ink border transition-colors duration-150',
           open
-            ? 'border-amber-400/60 shadow-[0_0_0_1px_rgba(251,191,36,0.15)]'
-            : 'border-amber-400/30 hover:border-amber-400/50',
+            ? 'border-[#33ff66]/60 shadow-[0_0_0_1px_rgba(51,255,102,0.18)]'
+            : 'border-[#33ff66]/30 hover:border-[#33ff66]/50',
         )}
       >
         <span
-          className="text-amber-400 text-sm flex-shrink-0 select-none tracking-tight"
+          className="text-[#33ff66] text-sm flex-shrink-0 select-none tracking-tight"
           aria-hidden="true"
         >
           scoppa&gt;
@@ -169,7 +169,7 @@ export function AiSearchBar({ initialQuery }: Props) {
             if (query.length >= 2) setOpen(true)
           }}
           placeholder="_"
-          className="flex-1 bg-transparent text-sm text-amber-400 caret-amber-400 placeholder:text-amber-400/40 outline-none min-w-0 font-mono"
+          className="flex-1 bg-transparent text-sm text-[#33ff66] caret-[#33ff66] placeholder:text-[#33ff66]/40 outline-none min-w-0 font-mono"
           autoComplete="off"
           autoCapitalize="off"
           spellCheck={false}
@@ -182,7 +182,7 @@ export function AiSearchBar({ initialQuery }: Props) {
             row so the dropdown content (suggestions/products) doesn't reflow. */}
         {loading && query.length >= 2 && (
           <div
-            className="w-3.5 h-3.5 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin flex-shrink-0"
+            className="w-3.5 h-3.5 border-2 border-[#33ff66]/20 border-t-[#33ff66] rounded-full animate-spin flex-shrink-0"
             aria-hidden="true"
           />
         )}
@@ -195,7 +195,7 @@ export function AiSearchBar({ initialQuery }: Props) {
               setOpen(false)
               inputRef.current?.focus()
             }}
-            className="text-amber-400/60 hover:text-amber-400 transition-colors"
+            className="text-[#33ff66]/60 hover:text-[#33ff66] transition-colors"
             aria-label="Clear search"
           >
             <svg
