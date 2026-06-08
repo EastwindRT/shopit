@@ -142,28 +142,22 @@ export function AiSearchBar({ initialQuery }: Props) {
 
   return (
     <div ref={containerRef} className="relative w-full">
+      {/* DOS-style terminal input. Black bg, amber text, monospace, sharp
+          corners, branded `scoppa>` prompt. CSS-only — zero perf cost. */}
       <div
         className={cn(
-          'flex items-center gap-2 px-3.5 py-2.5 bg-surface-1 border rounded-full transition-colors duration-150',
+          'flex items-center gap-2 px-3 py-2.5 font-mono bg-ink border transition-colors duration-150',
           open
-            ? 'border-ink/30 shadow-[0_1px_2px_rgba(0,0,0,0.04)]'
-            : 'border-surface-3 hover:border-surface-2',
+            ? 'border-amber-400/60 shadow-[0_0_0_1px_rgba(251,191,36,0.15)]'
+            : 'border-amber-400/30 hover:border-amber-400/50',
         )}
       >
-        <svg
-          className="w-4 h-4 text-ink-tertiary flex-shrink-0"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
+        <span
+          className="text-amber-400 text-sm flex-shrink-0 select-none tracking-tight"
           aria-hidden="true"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
+          scoppa&gt;
+        </span>
 
         <input
           ref={inputRef}
@@ -174,9 +168,11 @@ export function AiSearchBar({ initialQuery }: Props) {
           onFocus={() => {
             if (query.length >= 2) setOpen(true)
           }}
-          placeholder="Search every Shopify store"
-          className="flex-1 bg-transparent text-sm text-ink placeholder:text-ink-tertiary outline-none min-w-0"
+          placeholder="_"
+          className="flex-1 bg-transparent text-sm text-amber-400 caret-amber-400 placeholder:text-amber-400/40 outline-none min-w-0 font-mono"
           autoComplete="off"
+          autoCapitalize="off"
+          spellCheck={false}
           aria-label="Search products across Shopify"
           aria-expanded={open}
           aria-haspopup="listbox"
@@ -186,7 +182,7 @@ export function AiSearchBar({ initialQuery }: Props) {
             row so the dropdown content (suggestions/products) doesn't reflow. */}
         {loading && query.length >= 2 && (
           <div
-            className="w-3.5 h-3.5 border-2 border-ink/15 border-t-ink/60 rounded-full animate-spin flex-shrink-0"
+            className="w-3.5 h-3.5 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin flex-shrink-0"
             aria-hidden="true"
           />
         )}
@@ -199,7 +195,7 @@ export function AiSearchBar({ initialQuery }: Props) {
               setOpen(false)
               inputRef.current?.focus()
             }}
-            className="text-ink-tertiary hover:text-ink transition-colors"
+            className="text-amber-400/60 hover:text-amber-400 transition-colors"
             aria-label="Clear search"
           >
             <svg
