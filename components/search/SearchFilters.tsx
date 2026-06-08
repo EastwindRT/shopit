@@ -7,6 +7,15 @@ import { CATEGORIES, COUNTRIES } from '@/lib/search/facets'
 
 export type SortKey = 'relevance' | 'price-asc' | 'price-desc' | 'rating'
 
+const PRICES: { value: string; label: string }[] = [
+  { value: '', label: 'Any price' },
+  { value: '25', label: 'Under $25' },
+  { value: '50', label: 'Under $50' },
+  { value: '100', label: 'Under $100' },
+  { value: '200', label: 'Under $200' },
+  { value: '500', label: 'Under $500' },
+]
+
 const SORTS: { value: SortKey; label: string }[] = [
   { value: 'relevance', label: 'Relevance' },
   { value: 'price-asc', label: 'Price: Low to High' },
@@ -18,27 +27,39 @@ type Props = {
   country: string
   category: string
   sort?: SortKey
+  maxPrice?: string
   resultCount?: number
 }
 
-export function SearchFilters({ country, category, sort = 'relevance', resultCount }: Props) {
+export function SearchFilters({
+  country,
+  category,
+  sort = 'relevance',
+  maxPrice = '',
+  resultCount,
+}: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const params = useSearchParams()
   const [pending, startTransition] = useTransition()
 
   const update = useCallback(
-    (key: 'country' | 'category' | 'sort', value: string) => {
+    (key: 'country' | 'category' | 'sort' | 'maxPrice', value: string) => {
       const next = new URLSearchParams(params.toString())
       const isDefault = key === 'sort' && value === 'relevance'
       if (value && !isDefault) next.set(key, value)
       else next.delete(key)
+      // Reset to page 1 whenever a filter changes — otherwise users land
+      // on a now-out-of-range page (e.g. page 5 with 30 new results).
+      next.delete('page')
       startTransition(() => router.replace(`${pathname}?${next.toString()}`, { scroll: false }))
     },
     [router, pathname, params],
   )
 
-  const hasFilters = Boolean(country || category || (sort && sort !== 'relevance'))
+  const hasFilters = Boolean(
+    country || category || maxPrice || (sort && sort !== 'relevance'),
+  )
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-6">
@@ -55,6 +76,12 @@ export function SearchFilters({ country, category, sort = 'relevance', resultCou
         options={CATEGORIES.map((c) => ({ value: c, label: c || 'Any category' }))}
       />
       <Select
+        label="Max price"
+        value={maxPrice}
+        onChange={(v) => update('maxPrice', v)}
+        options={PRICES.map((p) => ({ value: p.value, label: p.label }))}
+      />
+      <Select
         label="Sort"
         value={sort}
         onChange={(v) => update('sort', v)}
@@ -67,6 +94,8 @@ export function SearchFilters({ country, category, sort = 'relevance', resultCou
             next.delete('country')
             next.delete('category')
             next.delete('sort')
+            next.delete('maxPrice')
+            next.delete('page')
             startTransition(() => router.replace(`${pathname}?${next.toString()}`, { scroll: false }))
           }}
           className="text-xs text-ink-tertiary hover:text-ink transition-colors px-2"

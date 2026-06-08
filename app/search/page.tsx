@@ -19,6 +19,7 @@ type Props = {
     country?: string
     category?: string
     sort?: SortKey
+    maxPrice?: string
     page?: string
   }>
 }
@@ -47,9 +48,16 @@ export async function generateMetadata({ searchParams }: Props) {
 }
 
 export default async function SearchPage({ searchParams }: Props) {
-  const { q, country = '', category = '', sort = 'relevance', page: pageRaw } = await searchParams
+  const {
+    q,
+    country = '',
+    category = '',
+    sort = 'relevance',
+    maxPrice = '',
+    page: pageRaw,
+  } = await searchParams
   const page = Math.max(1, parseInt(pageRaw ?? '1', 10))
-  const key = `${q ?? ''}|${country}|${category}|${sort}|${page}`
+  const key = `${q ?? ''}|${country}|${category}|${sort}|${maxPrice}|${page}`
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -59,7 +67,12 @@ export default async function SearchPage({ searchParams }: Props) {
 
       {q ? (
         <>
-          <SearchFilters country={country} category={category} sort={sort} />
+          <SearchFilters
+            country={country}
+            category={category}
+            sort={sort}
+            maxPrice={maxPrice}
+          />
           <Suspense
             key={key}
             fallback={
@@ -87,6 +100,7 @@ export default async function SearchPage({ searchParams }: Props) {
               country={country}
               category={category}
               sort={sort}
+              maxPrice={maxPrice}
               page={page}
             />
           </Suspense>
@@ -105,15 +119,25 @@ async function SearchResults({
   country,
   category,
   sort,
+  maxPrice,
   page,
 }: {
   query: string
   country: string
   category: string
   sort: SortKey
+  maxPrice: string
   page: number
 }) {
-  const products = await searchCatalogSmart(query, {
+  // Convert UI value (dollars, string) to UCP filter (integer minor units).
+  const maxPriceCents = maxPrice ? Math.round(Number(maxPrice) * 100) : null
+  // If the user picked a max price from the UI, augment the query string with
+  // "under $X". The planner already knows how to extract this into a UCP
+  // filters.price.max — so UCP narrows at the source instead of us filtering
+  // the whole result set client-side.
+  const augmentedQuery = maxPriceCents ? `${query} under $${maxPrice}` : query
+
+  const products = await searchCatalogSmart(augmentedQuery, {
     category,
     context:
       country
@@ -136,7 +160,16 @@ async function SearchResults({
     )
   }
 
-  const sorted = applySort(products, sort)
+  // Apply max-price refinement client-side. UCP supports `filters.price.max`
+  // server-side too — we pass it through, but also belt-and-suspenders filter
+  // here so any product UCP returns above the cap is dropped.
+  const priceFiltered = maxPriceCents
+    ? products.filter((p) => {
+        const amount = p.price_range?.min?.amount
+        return amount != null && amount <= maxPriceCents
+      })
+    : products
+  const sorted = applySort(priceFiltered, sort)
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
   const start = (currentPage - 1) * PAGE_SIZE
@@ -182,7 +215,13 @@ async function SearchResults({
       <ProductGrid products={pageResults} />
       <Pagination
         basePath="/search"
-        params={{ q: query, country, category, sort: sort === 'relevance' ? undefined : sort }}
+        params={{
+          q: query,
+          country,
+          category,
+          sort: sort === 'relevance' ? undefined : sort,
+          maxPrice,
+        }}
         currentPage={currentPage}
         totalPages={totalPages}
       />
