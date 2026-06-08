@@ -54,6 +54,13 @@ services:
         value: skimlinks
       - key: NEXT_PUBLIC_SKIMLINKS_ID
         value: 304358X1792528
+      # PostHog analytics — set NEXT_PUBLIC_POSTHOG_KEY in the Render dashboard
+      # to your project API key (starts with `phc_`). When unset, the SDK is
+      # not loaded — local dev stays clean, no events sent.
+      - key: NEXT_PUBLIC_POSTHOG_KEY
+        sync: false
+      - key: NEXT_PUBLIC_POSTHOG_HOST
+        value: https://us.i.posthog.com
     # Response headers (Cache-Control, Content-Type) are configured in
     # next.config.ts under `headers()` — Render's `headers:` block is only for
     # static-site services.
