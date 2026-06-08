@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { getSearchSuggestions } from '@/lib/search/suggestions'
+import { parseSearch, buildSearchUrl, searchCommands, type SlashCommand } from '@/lib/search/commands'
 import { SearchDropdown, type SlimProduct } from './SearchDropdown'
 
 type Props = {
@@ -26,6 +27,15 @@ export function AiSearchBar({ initialQuery }: Props) {
   const router = useRouter()
   const suggestions = useMemo(() => getSearchSuggestions(query), [query])
 
+  // Slash-command autocomplete: detect the *current* token under the cursor
+  // (the last whitespace-delimited word) and, if it starts with "/", match
+  // it against the command registry.
+  const commandHints = useMemo<SlashCommand[]>(() => {
+    const lastToken = query.split(/\s+/).pop() ?? ''
+    if (!lastToken.startsWith('/')) return []
+    return searchCommands(lastToken, 6)
+  }, [query])
+
   // Pre-warm the /search RSC payload + the typeahead API. By the time the user
   // hits Enter, both are cached.
   const prefetchSearch = useCallback(
@@ -33,7 +43,7 @@ export function AiSearchBar({ initialQuery }: Props) {
       const trimmed = q.trim()
       if (trimmed.length < 2 || lastPrefetchRef.current === trimmed) return
       lastPrefetchRef.current = trimmed
-      router.prefetch(`/search?q=${encodeURIComponent(trimmed)}`)
+      router.prefetch(buildSearchUrl(parseSearch(trimmed)))
     },
     [router],
   )
@@ -73,7 +83,7 @@ export function AiSearchBar({ initialQuery }: Props) {
     // Eager prefetch on first character past threshold — primes the Next.js
     // RSC cache for this query immediately, debounced fetch follows.
     if (val.trim().length >= 2 && lastPrefetchRef.current !== val.trim()) {
-      router.prefetch(`/search?q=${encodeURIComponent(val.trim())}`)
+      router.prefetch(buildSearchUrl(parseSearch(val.trim())))
     }
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -106,7 +116,20 @@ export function AiSearchBar({ initialQuery }: Props) {
     const trimmed = q.trim()
     if (!trimmed) return
     setOpen(false)
-    startTransition(() => router.push(`/search?q=${encodeURIComponent(trimmed)}`))
+    // Parse slash commands first — they expand to URL params (country,
+    // maxPrice, sort) and may augment the query with extra keywords.
+    const parsed = parseSearch(trimmed)
+    if (!parsed.query) return
+    startTransition(() => router.push(buildSearchUrl(parsed)))
+  }
+
+  /** Replace the current `/foo` token (last word) with `/cmd ` and keep typing. */
+  function applyCommand(cmd: SlashCommand) {
+    const tokens = query.split(/\s+/)
+    tokens[tokens.length - 1] = `/${cmd.name}`
+    const next = tokens.join(' ') + ' '
+    setQuery(next)
+    inputRef.current?.focus()
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -198,6 +221,8 @@ export function AiSearchBar({ initialQuery }: Props) {
           suggestions={suggestions}
           products={products}
           loading={loading}
+          commandHints={commandHints}
+          onPickCommand={applyCommand}
           onPickSuggestion={(suggestion) => {
             setQuery(suggestion)
             submit(suggestion)

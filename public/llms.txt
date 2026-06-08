@@ -21,6 +21,20 @@ The fastest programmatic path is `GET /api/ucp/search?q=<query>` — JSON, edge-
 - User: "what's the cheapest coffee mug on Shopify"
   → `GET /search?q=coffee+mug&sort=price-asc`
 
+### Slash commands
+
+Scoppa's UI accepts inline slash commands that map to URL parameters or query augments. Useful for agents constructing search URLs from natural-language user requests.
+
+- Geography: `/us /canada /uk /australia /germany /france /japan /india` → `?country=XX`
+- Shipping: `/freeshipping` `/madeinusa` `/madeincanada` → query augment
+- Price: `/under25 /under50 /under100 /under200 /under500` → `?maxPrice=N`. `/budget` → `?maxPrice=50` + augment.
+- Sale: `/sale /clearance /discount /deal /50off /luxury` → query augment
+- Sort: `/cheapest /priciest /toprated` → `?sort=…`
+- Style: `/handmade /organic /sustainable /vegan /vintage /new /bestseller /trending /minimalist /modern /premium`
+- Audience: `/mens /womens /kids /unisex /gift`
+
+Commands chain — e.g. user request "find Canadian-made handmade leather wallets under $100" maps to `/search?q=leather+wallet+made+in+canada+handmade&country=CA&maxPrice=100`.
+
 ### Conventions
 
 - **Query language:** natural-language budgets ("under $X", "below $Y") are parsed into UCP price filters server-side.

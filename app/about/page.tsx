@@ -28,7 +28,11 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: 'How does the search work?',
-    a: 'Your query is normalized, expanded with synonyms and intent (e.g. "running shoes under $100" extracts the price cap), then fanned out across the Shopify Universal Commerce Protocol catalog. Results from up to eight parallel queries are deduplicated and locally re-ranked by relevance.',
+    a: 'Your query is normalized, expanded with synonyms and intent (e.g. "running shoes under $100" extracts the price cap), then fanned out across the Shopify Universal Commerce Protocol catalog. Results from up to twelve parallel queries are deduplicated and locally re-ranked by relevance.',
+  },
+  {
+    q: 'Are there any keyboard shortcuts or commands?',
+    a: 'Yes — type "/" in the search bar to see a list. Examples: /canada to limit to Canadian merchants, /freeshipping for free shipping items, /under50 for items under $50, /clearance for clearance, /handmade for artisan goods, /vintage for retro, /toprated to sort by rating. Commands chain: "/canada /freeshipping leather wallet" works.',
   },
   {
     q: 'Can I filter by country or category?',

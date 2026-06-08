@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { ShopifyImage } from '@/components/ShopifyImage'
 import { formatMoney } from '@/lib/utils'
+import type { SlashCommand } from '@/lib/search/commands'
 
 export type SlimProduct = {
   slug: string
@@ -17,6 +18,8 @@ type Props = {
   suggestions: string[]
   products: SlimProduct[]
   loading: boolean
+  commandHints?: SlashCommand[]
+  onPickCommand?: (cmd: SlashCommand) => void
   onPickSuggestion: (suggestion: string) => void
   onClose: () => void
 }
@@ -26,13 +29,16 @@ export function SearchDropdown({
   suggestions,
   products,
   loading,
+  commandHints = [],
+  onPickCommand,
   onPickSuggestion,
   onClose,
 }: Props) {
-  const hasSuggestions = suggestions.length > 0
-  const hasProducts = products.length > 0
+  const hasCommands = commandHints.length > 0
+  const hasSuggestions = !hasCommands && suggestions.length > 0
+  const hasProducts = !hasCommands && products.length > 0
 
-  if (!hasSuggestions && !hasProducts && !loading) return null
+  if (!hasSuggestions && !hasProducts && !hasCommands && !loading) return null
 
   return (
     <div
@@ -41,6 +47,33 @@ export function SearchDropdown({
     >
       {/* No internal spinner — the input row shows a small spinner instead, so
           the dropdown content doesn't reflow while a new query is fetching. */}
+
+      {hasCommands && (
+        <div className="px-2 py-2 border-b border-surface-2/60">
+          <p className="text-[10px] font-medium text-ink-tertiary uppercase tracking-widest px-3 pb-1.5">
+            Commands
+          </p>
+          {commandHints.map((cmd) => (
+            <button
+              key={cmd.name}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => onPickCommand?.(cmd)}
+              className="w-full text-left px-3 py-1.5 hover:bg-surface-1 rounded-lg transition-colors flex items-baseline gap-3"
+              role="option"
+            >
+              <code className="text-xs font-mono text-ink bg-surface-2 px-1.5 py-0.5 rounded">
+                /{cmd.name}
+              </code>
+              <span className="text-xs text-ink-secondary truncate flex-1">
+                {cmd.description}
+              </span>
+              <span className="text-[10px] text-ink-tertiary uppercase tracking-wider flex-shrink-0">
+                {cmd.group}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {hasSuggestions && (
         <div className="px-2 py-2 border-b border-surface-2/60">
