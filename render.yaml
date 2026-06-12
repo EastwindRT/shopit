@@ -46,14 +46,24 @@ services:
       # Force production mode (Render sets this, but explicit for clarity).
       - key: NODE_ENV
         value: production
-      # Affiliate monetization — Skimlinks JS auto-rewrites outbound
-      # merchant links at click time. The ID is the compound publisherId X
-      # siteId Skimlinks gives you (e.g. 304358X1792528). Not a secret —
-      # it appears in every rewritten URL.
+      # Affiliate monetization — pluggable across universal affiliate
+      # networks. Set provider to one of: none / skimlinks / sovrn /
+      # cuelinks / custom. The ID is your publisher/account identifier
+      # from whichever network approves you.
+      #
+      # Format reference:
+      #   skimlinks   ID = "304358X1792528" (publisherId X siteId)
+      #   sovrn       ID = your Sovrn publisher key
+      #   cuelinks    ID = your Cuelinks CID
+      #   custom      set NEXT_PUBLIC_AFFILIATE_SCRIPT_URL to the raw JS URL
+      #
+      # IDs aren't secrets — they appear in every outbound affiliate URL.
       - key: NEXT_PUBLIC_AFFILIATE_PROVIDER
-        value: skimlinks
-      - key: NEXT_PUBLIC_SKIMLINKS_ID
-        value: 304358X1792528
+        value: none
+      - key: NEXT_PUBLIC_AFFILIATE_ID
+        sync: false
+      - key: NEXT_PUBLIC_AFFILIATE_SCRIPT_URL
+        sync: false
       # PostHog analytics — set NEXT_PUBLIC_POSTHOG_KEY in the Render dashboard
       # to your project API key (starts with `phc_`). When unset, the SDK is
       # not loaded — local dev stays clean, no events sent.
